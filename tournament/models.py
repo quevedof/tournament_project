@@ -26,14 +26,14 @@ class Match(models.Model):
     id = models.BigAutoField(primary_key=True)
     tournament = models.ForeignKey(Tournament, on_delete=models.RESTRICT)
     date = models.DateTimeField()
-    winning_participant = models.ForeignKey(Participant, on_delete=models.SET_NULL, null=True)
-    next_match = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
+    winning_participant = models.ForeignKey(Participant, on_delete=models.SET_NULL, null=True, blank=True)
+    next_match = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
 
 class MatchParticipant(models.Model):
     id = models.BigAutoField(primary_key=True)
     match = models.ForeignKey(Match, on_delete=models.RESTRICT)
     participant = models.ForeignKey(Participant, on_delete=models.RESTRICT)
-    score = models.IntegerField(null=True)
+    score = models.IntegerField(null=True, blank=True)
     
     class Meta:
         unique_together = ('match', 'participant')

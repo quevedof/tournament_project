@@ -50,3 +50,29 @@ Response Body
 }
 ```
 
+### Get Tournament Overall Details by key (includes matches, match participants, scores)
+GET `/api/tournamenets/{tournamentKey}/overall`
+
+Response Body
+```
+{
+    "id": 1,
+    "name": "Little League",
+    "generatedKey": "Ayz7itPP0a",
+    "matches": [
+        {
+            "id": 1,
+            "date": "2023-10-07T22:41:48Z",
+            "participants": [
+                {
+                    "id": 1,
+                    "teamName": "mango team",
+                    "score": 12
+                }
+            ],
+            "winner": null,
+            "nextMatchId": null
+        }
+    ]
+}
+```
