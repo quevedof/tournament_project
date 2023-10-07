@@ -1,4 +1,5 @@
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 from rest_framework import viewsets, generics
 from .models import Participant, Tournament, TournamentParticipant, Match, MatchParticipant
 from .serializers import ParticipantSerializer, CreateTournamentSerializer, TournamentSerializer, TournamentParticipantSerializer, MatchSerializer, MatchParticipantSerializer, JoinTournamentSerializer
@@ -35,3 +36,13 @@ class JoinTournamentView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         response_data = serializer.save()
         return Response(response_data)
+
+class TournamentByGeneratedKeyView(generics.RetrieveAPIView):
+    serializer_class = TournamentSerializer
+
+    def get_object(self):
+        generated_key = self.kwargs.get('generated_key')
+        try:
+            return Tournament.objects.get(generated_key=generated_key)
+        except Tournament.DoesNotExist:
+            raise NotFound("Tournament not found.")

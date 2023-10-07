@@ -13,4 +13,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('create-tournament', views.CreateTournamentView.as_view(), name='create-tournament'),
     path('join', views.JoinTournamentView.as_view(), name='join'),
+    path('tournaments/<str:generated_key>', views.TournamentByGeneratedKeyView.as_view(), name='tournament-by-generated-key'),
 ]
