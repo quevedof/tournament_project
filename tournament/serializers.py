@@ -4,32 +4,6 @@ import random
 import string
 from datetime import datetime
 
-class ParticipantSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Participant
-        fields = '__all__'
-        
-        
-class TournamentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tournament
-        fields = '__all__'
-
-class TournamentParticipantSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TournamentParticipant
-        fields = '__all__'
-
-class MatchSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Match
-        fields = '__all__'
-
-class MatchParticipantSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MatchParticipant
-        fields = '__all__'
-
 class CreateTournamentSerializer(serializers.Serializer):
     name = serializers.CharField()
     numberOfTeams = serializers.DecimalField(max_digits=2, decimal_places=0)
@@ -40,23 +14,20 @@ class CreateTournamentSerializer(serializers.Serializer):
         
         # Generate a random 10-character alphanumeric key
         generated_key = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-        
-        # Set the current time as the date
-        date = datetime.now()
 
         # Create the Tournament object with the provided data and generated values
         tournament = Tournament.objects.create(
             generated_key=generated_key,
-            date=date,
+            date=datetime.now(),
             name=command_name,
             number_of_teams=command_number_of_teams
         )
 
         return {
-            "name": command_name,
-            "numberOfTeams": command_number_of_teams,
-            "generatedKey": generated_key,
-            "date": date,
+            "name": tournament.name,
+            "numberOfTeams": tournament.number_of_teams,
+            "generatedKey": tournament.generated_key,
+            "date": tournament.date,
         }
 
 class JoinTournamentSerializer(serializers.Serializer):
@@ -85,3 +56,16 @@ class JoinTournamentSerializer(serializers.Serializer):
         )
 
         return f"{command_participant_team_name} joined {tournament.name}"
+
+class TournamentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tournament
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        camel_case_data = {}
+        for key, value in data.items():
+            camel_case_key = ''.join(word.capitalize() if index > 0 else word for index, word in enumerate(key.split('_')))
+            camel_case_data[camel_case_key] = value
+        return camel_case_data

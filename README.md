@@ -3,19 +3,27 @@
 The best tournament app in the world - with the best mango juice. 
 
 
-
-
+### Create Tournament
 POST `/api/create-tournament`
 
 Request Body
 ```
 {
     "name": "League of Legends",
-    "number_of_teams": 2
+    "numberOfTeams": 2
+}
+```
+Response Body
+```
+{
+    "name": "League of Legends",
+    "numberOfTeams": 2.0,
+    "generatedKey": "bHcv1Qb2hP",
+    "date": "2023-10-07T21:31:42.007740"
 }
 ```
 
-
+### Join Tournament
 POST `/api/join`
 
 Request Body
@@ -27,16 +35,18 @@ Request Body
 }
 ```
 
+
+### Get Tournament Details by Key
 GET `/api/tournaments/{tournamentKey}`
 
 Response Body
 ```
 {
-    "id": 3,
+    "id": 11,
     "name": "League of Legends",
-    "generated_key": "QlEFm51RcG",
-    "number_of_teams": 2,
-    "date": "2023-10-07T17:06:14.437633Z"
+    "generatedKey": "bHcv1Qb2hP",
+    "numberOfTeams": 2,
+    "date": "2023-10-07T21:31:42.007740Z"
 }
 ```
 
