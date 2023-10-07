@@ -16,23 +16,23 @@ class Tournament(models.Model):
 
 class TournamentParticipant(models.Model):
     id = models.BigAutoField(primary_key=True)
-    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
-    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
+    tournament = models.ForeignKey(Tournament, on_delete=models.RESTRICT)
+    participant = models.ForeignKey(Participant, on_delete=models.RESTRICT)
     
     class Meta:
         unique_together = ('tournament', 'participant')
 
 class Match(models.Model):
     id = models.BigAutoField(primary_key=True)
-    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    tournament = models.ForeignKey(Tournament, on_delete=models.RESTRICT)
     date = models.DateTimeField()
     winning_participant = models.ForeignKey(Participant, on_delete=models.SET_NULL, null=True)
     next_match = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
 
 class MatchParticipant(models.Model):
     id = models.BigAutoField(primary_key=True)
-    match = models.ForeignKey(Match, on_delete=models.CASCADE)
-    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
+    match = models.ForeignKey(Match, on_delete=models.RESTRICT)
+    participant = models.ForeignKey(Participant, on_delete=models.RESTRICT)
     score = models.IntegerField(null=True)
     
     class Meta:
