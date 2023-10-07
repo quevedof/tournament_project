@@ -10,7 +10,7 @@ class Participant(models.Model):
 class Tournament(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    generated_key = models.CharField(max_length=255)
+    generated_key = models.CharField(max_length=255, unique=True)
     number_of_teams = models.IntegerField()
     date = models.DateTimeField()
 
