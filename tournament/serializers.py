@@ -30,12 +30,14 @@ class MatchParticipantSerializer(serializers.ModelSerializer):
         model = MatchParticipant
         fields = '__all__'
 
-class CreateTournamentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tournament
-        fields = ('name', 'number_of_teams')
+class CreateTournamentSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    numberOfTeams = serializers.DecimalField(max_digits=2, decimal_places=0)
 
     def create(self, validated_data):
+        command_name = validated_data.pop('name')
+        command_number_of_teams = validated_data.pop('numberOfTeams')
+        
         # Generate a random 10-character alphanumeric key
         generated_key = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
         
@@ -46,9 +48,16 @@ class CreateTournamentSerializer(serializers.ModelSerializer):
         tournament = Tournament.objects.create(
             generated_key=generated_key,
             date=date,
-            **validated_data
+            name=command_name,
+            number_of_teams=command_number_of_teams
         )
-        return tournament
+
+        return {
+            "name": command_name,
+            "numberOfTeams": command_number_of_teams,
+            "generatedKey": generated_key,
+            "date": date,
+        }
 
 class JoinTournamentSerializer(serializers.Serializer):
     teamName = serializers.CharField()

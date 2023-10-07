@@ -25,8 +25,13 @@ class MatchParticipantViewSet(viewsets.ModelViewSet):
     serializer_class = MatchParticipantSerializer
 
 class CreateTournamentView(generics.CreateAPIView):
-    queryset = Tournament.objects.all()
     serializer_class = CreateTournamentSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        response_data = serializer.save()
+        return Response(response_data)
     
 class JoinTournamentView(generics.CreateAPIView):
     serializer_class = JoinTournamentSerializer
