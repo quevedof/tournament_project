@@ -72,3 +72,17 @@ class TournamentSerializer(serializers.ModelSerializer):
             camel_case_key = ''.join(word.capitalize() if index > 0 else word for index, word in enumerate(key.split('_')))
             camel_case_data[camel_case_key] = value
         return camel_case_data
+    
+class ParticipantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participant
+        fields = ('id', 'email', 'team_name')
+
+class TournamentParticipantsSerializer(serializers.ModelSerializer):
+    participant_id = serializers.IntegerField(source='participant.id')
+    email = serializers.EmailField(source='participant.email')
+    team_name = serializers.CharField(source='participant.team_name')
+
+    class Meta:
+        model = TournamentParticipant
+        fields = ('participant_id', 'email', 'team_name')  # Include other 

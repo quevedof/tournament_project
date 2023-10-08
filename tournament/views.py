@@ -5,7 +5,7 @@ from datetime import datetime
 from django.db import transaction 
 from django.forms.models import model_to_dict
 from .models import Tournament, Match, MatchParticipant, Participant, TournamentParticipant
-from .serializers import CreateTournamentSerializer, JoinTournamentSerializer, TournamentSerializer
+from .serializers import CreateTournamentSerializer, JoinTournamentSerializer, TournamentSerializer, TournamentParticipantsSerializer
 import random
 class CreateTournamentView(generics.CreateAPIView):
     serializer_class = CreateTournamentSerializer
@@ -169,3 +169,10 @@ class GenerateMatchesInTournamantView(generics.CreateAPIView):
         
         return Response("Generated")
 
+class TournamentParticipantsAPIView(generics.ListAPIView):
+    serializer_class = TournamentParticipantsSerializer
+
+    def get_queryset(self):
+        # Retrieve the tournament based on the provided generated_key
+        generated_key = self.kwargs['generated_key']
+        return TournamentParticipant.objects.filter(tournament__generated_key=generated_key)

@@ -35,6 +35,24 @@ Request Body
 }
 ```
 
+### Get Tournament Participants
+GET `/api/tournamenets/{tournamentKey}/participants`
+
+Response
+```
+[
+    {
+        "participant_id": 3,
+        "email": "poekmon.com",
+        "team_name": "pikachu"
+    },
+    {
+        "participant_id": 4,
+        "email": "123123123.com",
+        "team_name": "098765"
+    },
+]
+```
 
 ### Get Tournament Details by Key
 GET `/api/tournaments/{tournamentKey}`
