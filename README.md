@@ -76,3 +76,9 @@ Response Body
     ]
 }
 ```
+
+
+### Create Match Brackets in a Tournament
+POST `/api/tournamenets/{tournamentKey}/generate`
+
+Request body (no body)

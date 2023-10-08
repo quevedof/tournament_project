@@ -9,5 +9,6 @@ urlpatterns = [
     path('create-tournament', views.CreateTournamentView.as_view(), name='create-tournament'),
     path('join', views.JoinTournamentView.as_view(), name='join'),
     path('tournaments/<str:generated_key>', views.TournamentByGeneratedKeyView.as_view(), name='tournament-by-generated-key'),
-    path('tournaments/<str:tournament_key>/overall', views.GetTournamentOverallView.as_view(), name='generate-matches'),
+    path('tournaments/<str:tournament_key>/overall', views.GetTournamentOverallView.as_view(), name='get-tournament_overall'),
+    path('tournaments/<str:tournament_key>/generate', views.GenerateMatchesInTournamantView.as_view(), name='generate_matches'),
 ]

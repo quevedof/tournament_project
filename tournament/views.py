@@ -1,21 +1,26 @@
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ParseError
 from rest_framework import generics
-from .models import Tournament, Match, MatchParticipant, Participant
+from datetime import datetime
+from django.db import transaction 
+from django.forms.models import model_to_dict
+from .models import Tournament, Match, MatchParticipant, Participant, TournamentParticipant
 from .serializers import CreateTournamentSerializer, JoinTournamentSerializer, TournamentSerializer
-
+import random
 class CreateTournamentView(generics.CreateAPIView):
     serializer_class = CreateTournamentSerializer
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         response_data = serializer.save()
         return Response(response_data)
-    
+
 class JoinTournamentView(generics.CreateAPIView):
     serializer_class = JoinTournamentSerializer
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -77,10 +82,9 @@ class GetTournamentOverallView(generics.RetrieveAPIView):
     def get_tournament(self, tournament_key):
         return Tournament.objects.get(generated_key=tournament_key)
 
-    def retrieve(self, request, *args, **kwargs):
-        tournament = self.get_tournament(self.kwargs.get('tournament_key'))
+    def get_matches_response(self, tournament_key):
+        tournament = self.get_tournament(tournament_key);
         matches_data = self.get_matches(tournament.id)
-        
         response_data = {
             'id': tournament.id,
             'name': tournament.name,
@@ -88,4 +92,80 @@ class GetTournamentOverallView(generics.RetrieveAPIView):
             'matches': matches_data,
         }
         return Response(response_data)
+
+    def retrieve(self, request, *args, **kwargs):
+        return self.get_matches_response(self.kwargs.get("tournament_key"))
+
+def randomize_list(input_list):
+    # Create a copy of the input list to avoid modifying the original list
+    shuffled_list = input_list.copy()
+    
+    # Shuffle the elements in the copied list
+    random.shuffle(shuffled_list)
+    
+    return shuffled_list
+
+class GenerateMatchesInTournamantView(generics.CreateAPIView):
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        tournament_key = self.kwargs.get('tournament_key')
+        tournament = Tournament.objects.get(generated_key=tournament_key)
+        
+        # Validate request
+        tournament_participants = TournamentParticipant.objects.filter(tournament_id=tournament.id)
+        if (len(tournament_participants) != tournament.number_of_teams):
+            raise ParseError("Not enough participants to start the tournament")
+        
+        
+        if Match.objects.filter(tournament=tournament).count() > 0:
+            raise ParseError("Matches already created")
+
+        # Randomises Order
+        shuffled_tournament_participants = randomize_list(list(tournament_participants))
+            
+        number_of_matches_needed = tournament.number_of_teams - 1
+        final_match = Match.objects.create(
+            tournament=tournament,
+            date=datetime.now()
+        )
+        matches_queue = [final_match]
+        number_of_matches_created = 1
+        while number_of_matches_created < number_of_matches_needed:
+            match = matches_queue.pop(0)
+            match_a = Match.objects.create(
+                tournament=tournament,
+                date=datetime.now(),
+                next_match_id=match.id
+            )
+            match_b = Match.objects.create(
+                tournament=tournament,
+                date=datetime.now(),
+                next_match_id=match.id
+            )
+            number_of_matches_created += 2
+            
+            final_round = number_of_matches_created >= (number_of_matches_needed / 2)
+            if final_round:
+                MatchParticipant.objects.create(
+                    match=match_a,
+                    participant_id=shuffled_tournament_participants.pop(0).id
+                )
+                MatchParticipant.objects.create(
+                    match=match_a,
+                    participant_id=shuffled_tournament_participants.pop(0).id
+                )
+                MatchParticipant.objects.create(
+                    match=match_b,
+                    participant_id=shuffled_tournament_participants.pop(0).id
+                )
+                MatchParticipant.objects.create(
+                    match=match_b,
+                    participant_id=shuffled_tournament_participants.pop(0).id
+                )
+            else:
+                matches_queue.append(match_a)
+                matches_queue.append(match_b)
+        
+        return Response("Generated")
 

@@ -48,6 +48,9 @@ class JoinTournamentSerializer(serializers.Serializer):
         )
 
         tournament = Tournament.objects.filter(generated_key=command_tournament_key).first()
+        number_of_current_participants = TournamentParticipant.objects.filter(tournament=tournament.id).count()
+        if tournament.number_of_teams <= number_of_current_participants:
+            raise Exception("Tournament is already full")
         
         # Create TournamentParticipant associated with the Participant
         tournament_participant = TournamentParticipant.objects.create(
