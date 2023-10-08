@@ -1,12 +1,15 @@
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, ParseError
-from rest_framework import generics
+from rest_framework import generics, status
 from datetime import datetime
 from django.db import transaction 
 from django.forms.models import model_to_dict
-from .models import Tournament, Match, MatchParticipant, Participant, TournamentParticipant
+from .models import Tournament, Match, MatchParticipant, Participant, TournamentParticipant, TournamentParticipant
 from .serializers import CreateTournamentSerializer, JoinTournamentSerializer, TournamentSerializer, TournamentParticipantsSerializer
 import random
+from rest_framework.views import APIView
+
+
 class CreateTournamentView(generics.CreateAPIView):
     serializer_class = CreateTournamentSerializer
 
@@ -92,7 +95,7 @@ class GetTournamentOverallView(generics.RetrieveAPIView):
             'matches': matches_data,
         }
         return Response(response_data)
-
+    
     def retrieve(self, request, *args, **kwargs):
         return self.get_matches_response(self.kwargs.get("tournament_key"))
 
@@ -176,3 +179,36 @@ class TournamentParticipantsAPIView(generics.ListAPIView):
         # Retrieve the tournament based on the provided generated_key
         generated_key = self.kwargs['generated_key']
         return TournamentParticipant.objects.filter(tournament__generated_key=generated_key)
+    
+    
+class TournamentParticipantDeleteView(APIView):
+    def delete(self, request, tournament_key, participant_id):
+        try:
+            tournament = Tournament.objects.get(generated_key=tournament_key)
+            participant = Participant.objects.get(pk=participant_id)
+        except (Tournament.DoesNotExist, Participant.DoesNotExist):
+            return Response(
+                {"message": "Tournament or participant not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            tournament_participant = TournamentParticipant.objects.get(
+                tournament=tournament,
+                participant=participant
+            )
+
+            tournament_participant.delete()
+
+            participant = Participant.objects.get(pk=participant_id)
+            participant.delete()
+            
+            return Response(
+                {"message": "TournamentParticipant deleted successfully."},
+                status=status.HTTP_204_NO_CONTENT
+            )
+        except TournamentParticipant.DoesNotExist:
+            return Response(
+                {"message": "TournamentParticipant not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )

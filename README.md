@@ -95,8 +95,10 @@ Response Body
 }
 ```
 
-
 ### Create Match Brackets in a Tournament
 POST `/api/tournamenets/{tournamentKey}/generate`
 
 Request body (no body)
+
+### Delete tournament-participant
+DELETE `/api/tournaments/tournament_key/participants/participant_id`

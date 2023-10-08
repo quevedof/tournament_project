@@ -12,4 +12,5 @@ urlpatterns = [
     path('tournaments/<str:tournament_key>/overall', views.GetTournamentOverallView.as_view(), name='get-tournament_overall'),
     path('tournaments/<str:tournament_key>/generate', views.GenerateMatchesInTournamantView.as_view(), name='generate_matches'),
     path('tournaments/<str:generated_key>/participants', views.TournamentParticipantsAPIView.as_view(), name='tournament-participants'),
+    path('tournaments/<str:tournament_key>/participants/<int:participant_id>', views.TournamentParticipantDeleteView.as_view(), name='participant-delete'),
 ]
